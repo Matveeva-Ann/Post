@@ -3,6 +3,6 @@ export interface Article {
     authorAvatar: string;
     postText: string;
     postImage: string;
-    createdAt: Date;
+    createdAt: string;
     id: string;
 }

@@ -1,10 +1,8 @@
-'use client';
-
 import './globals.css';
 import Image from 'next/image';
-import { Provider } from 'react-redux';
-import { store } from '@/redux/state';
 import Link from 'next/link';
+import Providers from './Providers';
+import SwitchThemes from './components/SwitchTheme';
 
 export default function RootLayout({
   children,
@@ -12,16 +10,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" suppressContentEditableWarning>
       <body>
-        <header className="p-8">
-          <Link href={'/'}>
-            <h1>
-              <Image src="/logo-inverse.png" alt="logo" width={180} height={50} />
-            </h1>
-          </Link>
-        </header>
-        <Provider store={store}>{children}</Provider>
+        <Providers>
+          <header className="w-11/12 p-8 flex justify-between gap-2">
+            <Link href={'/'}>
+              <h1>
+                <Image src="/logo-inverse.png" alt="logo" width={180} height={50} priority />
+              </h1>
+            </Link>
+            <div className='cursor-pointer'>
+              <SwitchThemes></SwitchThemes>
+            </div>
+          </header>
+          {children}
+        </Providers>
       </body>
     </html>
   );
