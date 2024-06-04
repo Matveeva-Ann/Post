@@ -1,9 +1,11 @@
 'use client';
+
 import { useGetArticlesQuery } from '@/redux/articles';
 import ArticleCard from './ArticleCard';
 import { Article } from '@/types/Article';
 import Btn from './Btn';
 import { useCallback, useEffect, useState } from 'react';
+import ErrorComponent from './ErrorComponent/ErrorComponent';
 
 enum Direction {
   Next = 'next',
@@ -14,22 +16,29 @@ interface ArticlesProps {
 }
 
 export default function Articles({ searchParam }: ArticlesProps) {
-  const { data, isSuccess } = useGetArticlesQuery([]);
+  const { data, isSuccess, isError } = useGetArticlesQuery([]);
   const [articles, setArticles] = useState([]);
   const [count, setCount] = useState(1);
-
-  useEffect(() => {
-    if (data) {
-      setArticles(data.slice((count - 1) * 8, count * 8));
-    }
-  }, [count, data]);
+  const [isNotFound, setIsNotFound] = useState(false);
 
   const filterArticles = useCallback(() => {
     if (data) {
-      const result = data.filter((item: Article) => item.authorName.toLowerCase().includes(searchParam.toLowerCase()));
+      const result = data.filter(
+        (item: Article) =>
+          item.authorName.toLowerCase().includes(searchParam.trim().toLowerCase()) ||
+          item.postText.toLowerCase().includes(searchParam.trim().toLowerCase())
+      );
       setArticles(result);
+      setCount(1);
+      result.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     }
   }, [searchParam, data, setArticles]);
+
+  useEffect(() => {
+    if (data) {
+      setArticles(data);
+    }
+  }, [data]);
 
   useEffect(() => {
     filterArticles();
@@ -45,23 +54,28 @@ export default function Articles({ searchParam }: ArticlesProps) {
 
   return (
     <div>
+      {isError && <ErrorComponent>404 Not found</ErrorComponent>}
       {isSuccess && (
-        <div className="flex justify-between items-center mb-8 text-white">
-          <Btn onClick={() => handleClick(Direction.Prev)} disabled={count === 1}>
-            Prev page
-          </Btn>
-          <p className='text-xl'>{count}/{Math.round(data.length/8)}</p>
-          <Btn onClick={() => handleClick(Direction.Next)} disabled={data.length <= count * 8}>
-            Next page
-          </Btn>
-        </div>
+        <>
+          <div className="flex justify-between items-center mb-8 text-white">
+            <Btn onClick={() => handleClick(Direction.Prev)} disabled={count === 1}>
+              Prev page
+            </Btn>
+            <p className="text-xl">{articles.length !== 0 ? `${count}/${Math.ceil(articles.length / 8)}` : '0/0'}</p>
+            <Btn onClick={() => handleClick(Direction.Next)} disabled={articles.length <= count * 8}>
+              Next page
+            </Btn>
+          </div>
+
+          <div className="grid grid-cols-4 gap-6">
+            {articles.slice((count - 1) * 8, count * 8).map((article: Article, index: number) => {
+              return <ArticleCard articleData={article} key={index} searchParam={searchParam}></ArticleCard>;
+            })}
+          </div>
+
+          {isNotFound && <ErrorComponent>Nothing was found for your request</ErrorComponent>}
+        </>
       )}
-      <div className="grid grid-cols-4 gap-6">
-        {isSuccess &&
-          articles.map((article: Article, index: number) => {
-            return <ArticleCard articleData={article} key={index} articlesPage={count}></ArticleCard>;
-          })}
-      </div>
     </div>
   );
 }
