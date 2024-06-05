@@ -32,17 +32,17 @@ export default function Articles({ searchParam }: ArticlesProps) {
       setCount(1);
       result.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     }
-  }, [searchParam, data, setArticles]);
+  }, [searchParam, data]);
+
+  useEffect(() => {
+    filterArticles();
+  }, [searchParam, filterArticles]);
 
   useEffect(() => {
     if (data) {
       setArticles(data);
     }
   }, [data]);
-
-  useEffect(() => {
-    filterArticles();
-  }, [searchParam, filterArticles]);
 
   function handleClick(direction: string) {
     if (direction === Direction.Next && data.length >= count * 8) {
@@ -53,7 +53,7 @@ export default function Articles({ searchParam }: ArticlesProps) {
   }
 
   return (
-    <div>
+    <div data-testid="articles-component">
       {isError && <ErrorComponent>404 Not found</ErrorComponent>}
       {isSuccess && (
         <>

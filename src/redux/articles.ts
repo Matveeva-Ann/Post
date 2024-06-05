@@ -1,4 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 export const articlesApi = createApi({
   reducerPath:'articlesApi',
@@ -11,3 +13,10 @@ export const articlesApi = createApi({
 
 
 export const { useGetArticlesQuery, useGetArticleItemQuery } = articlesApi;
+
+const persistConfig = {
+  key: 'articles',
+  storage,
+}
+
+export const persistedArticlesApiReducer = persistReducer(persistConfig, articlesApi.reducer);

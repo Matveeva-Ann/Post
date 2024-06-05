@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { Dispatch, SetStateAction } from 'react';
 import { GoSearch } from 'react-icons/go';
 import { RxCross2 } from 'react-icons/rx';
+import { useDebounce } from '../utils/useDebounce';
 
 interface SearchProps {
   setSearchParam: Dispatch<SetStateAction<string>>;
@@ -12,24 +13,15 @@ interface SearchProps {
 export default function Search({ setSearchParam }: SearchProps) {
   const [inputValue, setInputValue] = useState('');
   const inputData = useRef<HTMLInputElement>(null);
+  
+  const debouncedSetSearchParam = useDebounce((value) => {
+    setSearchParam(value);
+  }, 500);
 
-  function handleSearch() {
-    if (inputData.current) {
-      const searchData = inputData.current.value;
-      setInputValue(searchData);
-
-      debounce((searchData: string) => {
-        setSearchParam(searchData);
-      })(searchData);
-    }
-  }
-
-  function debounce (callBack: (arg: string) => void) {
-    return (arg: string) =>{
-      setTimeout(()=>{
-        setSearchParam(arg)
-      }, 500)
-    }
+  function handleSearch(event: ChangeEvent<HTMLInputElement>) {
+    const searchData = event.target.value;
+    setInputValue(searchData);
+    debouncedSetSearchParam(searchData);
   }
 
   function reset() {
@@ -46,7 +38,7 @@ export default function Search({ setSearchParam }: SearchProps) {
             ref={inputData}
             className="mr-5 nl-5 w-full p-2 pl-10 border bg-white dark:bg-stone-900 border-black dark:border-white rounded-lg form-input text-slate-950 dark:text-white focus:outline-none"
             type="search"
-            onChange={handleSearch}
+            onChange={(e)=>handleSearch(e)}
             value={inputValue}
           />
           <RxCross2

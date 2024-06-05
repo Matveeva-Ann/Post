@@ -1,9 +1,8 @@
 import Image from "next/image";
 
-
 interface UserDataProps {
   avatar: string;
-  name: string;
+  name: React.ReactNode;
 }
 export default function UserData ({avatar, name}:UserDataProps) {
 

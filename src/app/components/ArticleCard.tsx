@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formattedDateTime } from '../utils/formattedDateTime';
 import UserData from './UserData';
+import { truncateText } from '../utils/truncateText';
 
 export interface ArticleCardProps {
   articleData: Article;
@@ -10,18 +11,25 @@ export interface ArticleCardProps {
 }
 
 export default function ArticleCard({ articleData, searchParam }: ArticleCardProps) {
-
-  const highlightText = (text: string, highlight: string) => {
-    if (!highlight.trim()) {
+  
+  function highlightText(text: string, highlightElem: string) {
+    if (!highlightElem) {
       return text;
     }
-    const regex = new RegExp(`(${highlight})`, 'gi');
-    return text.split(regex).map((part, index) =>
-      regex.test(part) ? <span key={index} style={{ backgroundColor: 'gray' }}>{part}</span> : part
+    const reg = new RegExp(`(${highlightElem})`, 'gi');
+    return text.split(reg).map((textPart, index) =>
+      reg.test(textPart) ? (
+        <span
+          key={index}
+          className='bg-cyan-600 text-white p-0.5 text-lg rounded-sm'
+        >
+          {textPart}
+        </span>
+      ) : (
+        textPart
+      )
     );
-  }; 
-
-
+  }
 
   return (
     <>
@@ -41,11 +49,13 @@ export default function ArticleCard({ articleData, searchParam }: ArticleCardPro
         </Link>
 
         <div className="text-black grow rounded-b-2xl -mt-2 p-5 pb-7 relative dark:text-white">
-          <UserData avatar={articleData.authorAvatar} name={articleData.authorName}></UserData>
+          <UserData
+            avatar={articleData.authorAvatar}
+            name={highlightText(articleData.authorName, searchParam)}
+          ></UserData>
           <Link href={`/posts/${articleData.id}`}>
             <p className="text-sm text-justify min-h-28">
-            {highlightText(articleData.postText, searchParam)}
-              {/* {articleData.postText.length > 120 ? `${articleData.postText.slice(0, 120)}...` : articleData.postText} */}
+              {highlightText(truncateText(articleData.postText, 120), searchParam)}
             </p>
           </Link>
           <span className="text-sm text-gray-600 absolute bottom-2 right-4">
