@@ -50,7 +50,7 @@ export default function Articles({ searchParam }: ArticlesProps) {
     } else if (direction === Direction.Prev && count > 1) {
       setCount(prevState => prevState - 1);
     }
-  }
+  } 
 
   return (
     <div data-testid="articles-component">

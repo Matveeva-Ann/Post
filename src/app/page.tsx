@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import Articles from './components/Articles';
 import Search from './components/Search';
+import dynamic from 'next/dynamic';
+
+const ArticlesComponent = dynamic(() => import('./components/Articles'))
+
 
 export default function Home() {
   const [searchParam, setSearchParam] = useState('');
@@ -10,7 +13,7 @@ export default function Home() {
   return (
     <main className="w-10/12 mx-auto mb-10">
       <Search setSearchParam={setSearchParam}></Search>
-      <Articles searchParam={searchParam}></Articles>
+      <ArticlesComponent searchParam={searchParam}></ArticlesComponent>
     </main>
   );
 }
